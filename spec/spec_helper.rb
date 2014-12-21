@@ -5,6 +5,6 @@ RSpec.configure do |config|
   config.include Rack::Test::Methods
 
   def app
-    NewsApi.new
+    Rack::Lint.new(NewsApi.new)
   end
 end
