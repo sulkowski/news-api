@@ -1,4 +1,4 @@
 require 'rack'
-require_relative 'lib/app'
+require_relative 'lib/news_api'
 
-Rack::Handler::WEBrick.run App.new
+Rack::Handler::WEBrick.run NewsApi.new

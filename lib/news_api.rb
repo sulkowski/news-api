@@ -1,5 +1,7 @@
-class NewsApi
-  def call(_env)
-    [200, { 'Content-Type' => 'text/plain' }, []]
+require 'sinatra/base'
+
+class NewsApi < Sinatra::Base
+  get '/' do
+    ''
   end
 end
