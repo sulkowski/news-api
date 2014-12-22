@@ -6,11 +6,18 @@ describe Api::V1::News do
 
   context 'stories' do
     describe '#GET /api/v1/stories' do
-      it 'returns a successful response' do
-        pending 'Not yet implemented'
-        get '/api/v1/stories'
+      before(:each) { get '/api/v1/stories' }
 
+      it 'returns a successful response' do
         expect(last_response).to be_ok
+      end
+
+      it 'returns `application/json` content type' do
+        expect(last_response.header['Content-Type']).to eq('application/json')
+      end
+
+      it 'returns correct response body' do
+        expect(last_response.body).to eq("\{\"note\"\:\"Requested: /api/v1/stories\"\}")
       end
     end
 
@@ -24,11 +31,18 @@ describe Api::V1::News do
     end
 
     describe '#GET /api/v1/stories/:id' do
-      it 'returns a successful response' do
-        pending 'Not yet implemented'
-        get '/api/v1/stories/1'
+      before(:each) { get '/api/v1/stories/1' }
 
+      it 'returns a successful response' do
         expect(last_response).to be_ok
+      end
+
+      it 'returns `application/json` content type' do
+        expect(last_response.header['Content-Type']).to eq('application/json')
+      end
+
+      it 'returns correct response body' do
+        expect(last_response.body).to eq("\{\"note\"\:\"Requested: /api/v1/stories/1\"\}")
       end
     end
 
