@@ -3,21 +3,29 @@ module News
     module Routes
       class Stories < Sinatra::Base
         helpers Sinatra::JSON
+        register Sinatra::Namespace
 
-        # Stories
-        get '/v1/stories' do
-          json note: 'Requested: /v1/stories'
-        end
-        # post '/api/v1/stories' do; end
-        get '/v1/stories/:id' do
-          json note: "Requested: /v1/stories/#{params[:id]}"
-        end
-        # patch '/v1/stories/:id' do; end
+        namespace '/v1' do
+          namespace '/stories' do
+            get do
+              json note: 'Requested: /v1/stories'
+            end
 
-        # Voting
-        # put '/v1/stories/:id/vote/up' do; end
-        # put '/v1/stories/:id/vote/down' do; end
-        # delete '/v1/stories/:id/vote' do; end
+            # post do; end
+
+            get '/:id' do
+              json note: "Requested: /v1/stories/#{params[:id]}"
+            end
+
+            # patch '/:id' do; end
+
+            namespace '/:id/vote' do
+              # put '/up' do; end
+              # put '/down' do; end
+              # delete do; end
+            end
+          end
+        end
       end
     end
   end

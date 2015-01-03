@@ -3,6 +3,7 @@ $LOAD_PATH << File.expand_path('../news/v1', __FILE__)
 
 require 'sinatra/base'
 require 'sinatra/json'
+require 'sinatra/namespace'
 
 require 'routes/stories'
 require 'routes/users'
