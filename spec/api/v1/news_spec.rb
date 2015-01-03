@@ -56,7 +56,7 @@ describe Api::V1::News do
     end
 
     context 'vote' do
-      describe '#POST /api/v1/stories/:id/vote/up' do
+      describe '#PUT /api/v1/stories/:id/vote/up' do
         it 'returns a successful response' do
           pending 'Not yet implemented'
           post '/api/v1/stories/1/vote/up'
@@ -64,7 +64,7 @@ describe Api::V1::News do
           expect(last_response).to be_ok
         end
       end
-      describe '#POST /api/v1/stories/:id/vote/down' do
+      describe '#PUT /api/v1/stories/:id/vote/down' do
         it 'returns a successful response' do
           pending 'Not yet implemented'
           post '/api/v1/stories/1/vote/down'
