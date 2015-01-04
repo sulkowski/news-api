@@ -1,20 +1,19 @@
+require_relative 'base'
+
 module News
   module V1
     module Routes
-      class Stories < Sinatra::Base
-        helpers Sinatra::JSON
-        register Sinatra::Namespace
-
+      class Stories < Base
         namespace '/v1' do
           namespace '/stories' do
             get do
-              json note: 'Requested: /v1/stories'
+              json Story.all
             end
 
             # post do; end
 
             get '/:id' do
-              json note: "Requested: /v1/stories/#{params[:id]}"
+              json Story.find(params[:id])
             end
 
             # patch '/:id' do; end

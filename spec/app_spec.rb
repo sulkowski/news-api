@@ -5,21 +5,22 @@ describe News::App do
   let(:app) { Rack::Lint.new(News::App.new) }
 
   context 'stories' do
-    before(:each) { Story.create!(id: 1, title: 'Lorem ipsum', url: 'http://www.lipsum.com/') }
+    let(:story) { Story.create!(id: 1, title: 'Lorem ipsum', url: 'http://www.lipsum.com/') }
 
     describe '#GET /v1/stories' do
+      before(:each) { story }
       before(:each) { get '/v1/stories' }
 
       it 'returns a successful response' do
         expect(last_response).to be_ok
       end
 
-      it 'returns `application/json` content type' do
+      it 'has `application/json` content type' do
         expect(last_response.header['Content-Type']).to eq('application/json')
       end
 
-      it 'returns correct response body' do
-        expect(last_response.body).to eq("\{\"note\"\:\"Requested: /v1/stories\"\}")
+      it 'returns stories as a json' do
+        expect(last_response.body).to eq('[{"id":1,"title":"Lorem ipsum","url":"http://www.lipsum.com/"}]')
       end
     end
 
@@ -33,18 +34,37 @@ describe News::App do
     end
 
     describe '#GET /v1/stories/:id' do
-      before(:each) { get '/v1/stories/1' }
+      context 'when the story exists' do
+        before(:each) { story }
+        before(:each) { get '/v1/stories/1' }
 
-      it 'returns a successful response' do
-        expect(last_response).to be_ok
+        it 'returns a successful response' do
+          expect(last_response).to be_ok
+        end
+
+        it 'has `application/json` content type' do
+          expect(last_response.header['Content-Type']).to eq('application/json')
+        end
+
+        it 'returns story as a json' do
+          expect(last_response.body).to eq('{"id":1,"title":"Lorem ipsum","url":"http://www.lipsum.com/"}')
+        end
       end
 
-      it 'returns `application/json` content type' do
-        expect(last_response.header['Content-Type']).to eq('application/json')
-      end
+      context 'when the story does not exist' do
+        before(:each) { get '/v1/stories/1' }
 
-      it 'returns correct response body' do
-        expect(last_response.body).to eq("\{\"note\"\:\"Requested: /v1/stories/1\"\}")
+        it 'returns `not found` response' do
+          expect(last_response).to be_not_found
+        end
+
+        it 'has `application/json` content type' do
+          expect(last_response.header['Content-Type']).to eq('application/json')
+        end
+
+        it 'contains error message' do
+          expect(last_response.body).to eq('{"error":"Record not found."}')
+        end
       end
     end
 
@@ -66,6 +86,7 @@ describe News::App do
           expect(last_response).to be_ok
         end
       end
+
       describe '#PUT /v1/stories/:id/vote/down' do
         it 'returns a successful response' do
           pending 'Not yet implemented'
@@ -74,6 +95,7 @@ describe News::App do
           expect(last_response).to be_ok
         end
       end
+
       describe '#DELETE /v1/stories/:id/vote' do
         it 'returns a successful response' do
           pending 'Not yet implemented'
