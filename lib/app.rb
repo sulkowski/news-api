@@ -11,7 +11,9 @@ require 'config/database'
 require 'routes/stories'
 require 'routes/users'
 
-class App < Sinatra::Base
-  use News::V1::Routes::Stories
-  use News::V1::Routes::Users
+module News
+  class App < Sinatra::Base
+    use V1::Routes::Stories
+    use V1::Routes::Users
+  end
 end
