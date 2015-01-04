@@ -5,6 +5,9 @@ require 'sinatra/base'
 require 'sinatra/json'
 require 'sinatra/namespace'
 
+require 'config/environment'
+require 'config/database'
+
 require 'routes/stories'
 require 'routes/users'
 
