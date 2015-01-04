@@ -8,6 +8,8 @@ require 'sinatra/namespace'
 require 'config/environment'
 require 'config/database'
 
+require 'models/story'
+
 require 'routes/stories'
 require 'routes/users'
 

@@ -1,10 +1,12 @@
 require 'spec_helper'
 require 'app'
 
-describe App do
-  let(:app) { Rack::Lint.new(App.new) }
+describe News::App do
+  let(:app) { Rack::Lint.new(News::App.new) }
 
   context 'stories' do
+    before(:each) { Story.create!(id: 1, title: 'Lorem ipsum', url: 'http://www.lipsum.com/') }
+
     describe '#GET /v1/stories' do
       before(:each) { get '/v1/stories' }
 
