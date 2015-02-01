@@ -1,3 +1,3 @@
-require_relative 'lib/app'
+require './app'
 
 run News::App
