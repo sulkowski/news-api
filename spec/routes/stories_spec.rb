@@ -1,10 +1,12 @@
 require 'spec_helper'
 
 describe News::Routes::Stories do
-  let(:story) { Story.create!(id: 1, title: 'Lorem ipsum', url: 'http://www.lipsum.com/') }
+  before(:each) {
+    @story = Story.create(id: 1, title: 'Lorem ipsum', url: 'http://www.lipsum.com/')
+  }
 
   describe '#GET `/stories`' do
-    before(:each) { story }
+
     before(:each) { get '/stories' }
 
     it 'returns a successful response' do
@@ -26,7 +28,6 @@ describe News::Routes::Stories do
 
   describe '#GET `/stories/:id`' do
     context 'when the story exists' do
-      before(:each) { story }
       before(:each) { get '/stories/1' }
 
       it 'returns a successful response' do
@@ -45,7 +46,7 @@ describe News::Routes::Stories do
     end
 
     context 'when the story does not exist' do
-      before(:each) { get '/stories/1' }
+      before(:each) { get '/stories/15' }
 
       it 'returns `not found` response' do
         expect(last_response).to be_not_found
