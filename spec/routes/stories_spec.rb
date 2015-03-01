@@ -18,9 +18,10 @@ describe News::Routes::Stories do
     end
 
     it 'returns stories as a json' do
-      expect(JSON.parse(last_response.body)).to eq([{ 'id'    => 1,
-                                                      'title' => 'Lorem ipsum',
-                                                      'url'   => 'http://www.lipsum.com/' }])
+      response = JSON.parse(last_response.body).first
+      expect(response['id']).to eq(1)
+      expect(response['title']).to eq('Lorem ipsum')
+      expect(response['url']).to eq('http://www.lipsum.com/')
     end
   end
 
@@ -39,9 +40,10 @@ describe News::Routes::Stories do
       end
 
       it 'returns story as a json' do
-        expect(JSON.parse(last_response.body)).to eq('id'    => 1,
-                                                     'title' => 'Lorem ipsum',
-                                                     'url'   => 'http://www.lipsum.com/')
+        response = JSON.parse(last_response.body)
+        expect(response['id']).to eq(1)
+        expect(response['title']).to eq('Lorem ipsum')
+        expect(response['url']).to eq('http://www.lipsum.com/')
       end
     end
 
