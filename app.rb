@@ -10,11 +10,13 @@ Dotenv.load
 require 'active_record'
 require 'sinatra/base'
 require 'sinatra/json'
+require 'sinatra/reloader'
 require 'sinatra/namespace'
 
 require 'app/models'
 require 'app/routes'
 require 'app/helpers'
+require 'multi_json'
 
 module News
   class App < Sinatra::Application

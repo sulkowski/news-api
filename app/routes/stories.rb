@@ -13,6 +13,15 @@ module News
         patch '/:id' do
         end
 
+        post do
+          story = Story.new(title: params['title'], url: params['url'])
+          if story.save!
+            status 201
+            location "/stories/#{story.id}"
+            json story
+          end
+        end
+
         # Voting
         namespace '/:id/vote' do
           put '/up' do

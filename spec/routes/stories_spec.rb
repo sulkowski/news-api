@@ -1,64 +1,104 @@
 require 'spec_helper'
 
 describe News::Routes::Stories do
-  before(:each) {
-    @story = Story.create(id: 1, title: 'Lorem ipsum', url: 'http://www.lipsum.com/')
+  before {
+    @story = Story.create(
+      id: 1,
+      title: 'Lorem ipsum',
+      url: 'http://www.lipsum.com/'
+    )
   }
 
   describe '#GET `/stories`' do
-    before(:each) { get '/stories' }
+    before { get '/stories' }
 
-    it 'returns a successful response' do
-      expect(last_response).to be_ok
+    it 'returns 200 status code' do
+      expect(last_response.status).to eq(200)
     end
 
     it 'has `application/json` content type' do
-      expect(last_response.header['Content-Type']).to eq('application/json')
+      expect(last_response.header['Content-Type']).to include('application/json')
     end
 
-    it 'returns stories as a json' do
-      response = JSON.parse(last_response.body).first
-      expect(response['id']).to eq(1)
-      expect(response['title']).to eq('Lorem ipsum')
-      expect(response['url']).to eq('http://www.lipsum.com/')
+    it 'returns stories' do
+      first_story = JSON.parse(last_response.body).first
+
+      expect(first_story).to include_json(
+        id: 1,
+        title: 'Lorem ipsum',
+        url: 'http://www.lipsum.com/'
+      )
     end
   end
 
   describe '#POST `/stories`' do
-    xit 'creates a new story' do
-      post '/stories', title: 'React.js', url: 'https://facebook.github.io/react/'
+    context 'when params are valid' do
+      before { post '/stories', title: 'React.js', url: 'https://facebook.github.io/react/' }
 
-      response = JSON.parse(last_response.body)
-      expect(response['title']).to eq('React.js')
-      expect(response['url']).to eq('https://facebook.github.io/react/')
+      it 'returns 201 status code' do
+        expect(last_response.status).to eq(201)
+      end
+
+      it 'contains `location` header' do
+        expect(last_response.header).to have_key('Location')
+        expect(last_response.header['Location']).to match(/\/stories\/\d+/)
+      end
+
+      it 'returns a new story in response' do
+        expect(last_response.body).to include_json(
+          title: 'React.js',
+          url: 'https://facebook.github.io/react/'
+        )
+      end
+    end
+
+    context 'when url is not given' do
+      before { post '/stories', title: 'React.js' }
+
+      it 'returns 422 status code' do
+        expect(last_response.status).to eq(422)
+      end
+
+      it 'returns error description' do
+        expect(last_response.body).to include_json(
+          error: {
+            code: 422,
+            message: 'Validation failed: Url can\'t be blank',
+            errors: {
+              url: ['can\'t be blank']
+            }
+          }
+        )
+      end
     end
   end
 
   describe '#GET `/stories/:id`' do
     context 'when the story exists' do
-      before(:each) { get '/stories/1' }
+      before { get '/stories/1' }
 
       it 'returns a successful response' do
         expect(last_response).to be_ok
       end
 
       it 'has `application/json` content type' do
-        expect(last_response.header['Content-Type']).to eq('application/json')
+        expect(last_response.header['Content-Type']).to include('application/json')
       end
 
       it 'returns story as a json' do
-        response = JSON.parse(last_response.body)
-        expect(response['id']).to eq(1)
-        expect(response['title']).to eq('Lorem ipsum')
-        expect(response['url']).to eq('http://www.lipsum.com/')
+        expect(last_response.body).to include_json(
+          id: 1,
+          title: 'Lorem ipsum',
+          url: 'http://www.lipsum.com/'
+        )
       end
     end
 
     context 'when the story does not exist' do
-      before(:each) { get '/stories/15' }
+      before { get '/stories/15' }
 
       it 'returns `not found` response' do
-        expect(last_response).to be_not_found
+        expect(last_response.status).to eq(404)
       end
 
       it 'has `application/json` content type' do
@@ -66,7 +106,12 @@ describe News::Routes::Stories do
       end
 
       it 'contains error message' do
-        expect(JSON.parse(last_response.body)).to eq('error' => 'Record not found.')
+        expect(last_response.body).to include_json(
+          error: {
+            code: 404,
+            message: 'Couldn\'t find News::Models::Story with \'id\'=15'
+          }
+        )
       end
     end
   end
@@ -75,9 +120,11 @@ describe News::Routes::Stories do
     xit 'updates a story' do
       patch '/stories/1', title: 'React.js', url: 'https://facebook.github.io/react/'
 
-      response = JSON.parse(last_response.body)
-      expect(response['title']).to eq('React.js')
-      expect(response['url']).to eq('https://facebook.github.io/react/')
+      expect(last_response.body).to include_json(
+        id: 1,
+        title: 'React.js',
+        url: 'https://facebook.github.io/react/'
+      )
     end
   end
 

@@ -7,6 +7,8 @@ gem 'database_cleaner',  '~> 1.3.0'
 gem 'dotenv',            '~> 1.0.2'
 gem 'dotenv-deployment', '~> 0.2.0'
 gem 'pg',                '~> 0.18.1'
+gem 'multi_json',        '~> 1.11.0'
+gem 'rack-parser',       '~> 0.6.1'
 gem 'rake',              '~> 10.4.2'
 gem 'rubocop',           '~> 0.28.0', require: false
 gem 'sinatra',           '~> 1.4.5'
@@ -17,5 +19,6 @@ group :test, :development do
 end
 
 group :test do
-  gem 'rack-test', '~> 0.6.2'
+  gem 'rack-test',               '~> 0.6.2'
+  gem 'rspec-json_expectations', '~> 1.2.0'
 end

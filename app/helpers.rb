@@ -1,5 +1,5 @@
 module News
   module Helpers
-    autoload :ActiveRecordErrorResolver, 'app/helpers/active_record_error_resolver'
+    autoload :ResponseHeaders, 'app/helpers/response_headers'
   end
 end

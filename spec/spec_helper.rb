@@ -2,6 +2,7 @@ ENV['RACK_ENV'] ||= 'test'
 
 require 'database_cleaner'
 require 'rack/test'
+require 'rspec/json_expectations'
 require './app'
 
 def app
@@ -10,6 +11,7 @@ end
 
 RSpec.configure do |config|
   config.include Rack::Test::Methods
+  config.color = true
 
   config.before(:suite) do
     DatabaseCleaner.strategy = :deletion
