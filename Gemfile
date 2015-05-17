@@ -3,6 +3,7 @@ source 'https://rubygems.org'
 ruby '2.1.5'
 
 gem 'activerecord',      '~> 4.2.0'
+gem 'bcrypt-ruby',       '~> 3.1.5'
 gem 'database_cleaner',  '~> 1.3.0'
 gem 'dotenv',            '~> 1.0.2'
 gem 'dotenv-deployment', '~> 0.2.0'

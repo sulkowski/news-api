@@ -1,9 +1,12 @@
 ENV['RACK_ENV'] ||= 'test'
 
+require 'bcrypt'
 require 'database_cleaner'
 require 'rack/test'
 require 'rspec/json_expectations'
 require './app'
+
+BCrypt::Engine.cost = BCrypt::Engine::MIN_COST
 
 def app
   Rack::Lint.new(News::App.new)
