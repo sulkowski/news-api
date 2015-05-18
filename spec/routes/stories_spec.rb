@@ -32,7 +32,6 @@ describe News::Routes::Stories do
   end
 
   describe '#POST `/stories`' do
-
     context 'when user is not authorized' do
       it_should_behave_like 'not authorized user' do
         before {
@@ -57,7 +56,7 @@ describe News::Routes::Stories do
 
       it 'contains `location` header' do
         expect(last_response.header).to have_key('Location')
-        expect(last_response.header['Location']).to match(/\/stories\/\d+/)
+        expect(last_response.header['Location']).to match(%r{\/stories\/\d+})
       end
 
       it 'returns a new story in response' do

@@ -14,15 +14,15 @@ module News
       helpers Helpers::Authentication
 
       error News::Models::User::NotAuthorized do
-        halt 401, json(error: {code: 401, message: 'Not authorized'})
+        halt 401, json(error: { code: 401, message: 'Not authorized' })
       end
 
       error ActiveRecord::RecordNotFound do |error|
-        halt 404, json(error: {code: 404, message: error.to_s})
+        halt 404, json(error: { code: 404, message: error.to_s })
       end
 
       error ActiveRecord::RecordInvalid do |error|
-        halt 422, json(error: {code: 422, message: error.to_s, errors: error.record.errors})
+        halt 422, json(error: { code: 422, message: error.to_s, errors: error.record.errors })
       end
     end
   end

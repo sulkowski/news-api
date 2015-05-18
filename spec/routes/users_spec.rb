@@ -92,7 +92,7 @@ describe News::Routes::Users do
       end
 
       context 'when there alredy account' do
-        let(:user_params) { {email: '007@mi6.co.uk', password: 'versper'} }
+        let(:user_params) { { email: '007@mi6.co.uk', password: 'versper' } }
 
         before do
           User.create(user_params)

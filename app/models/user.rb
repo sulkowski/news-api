@@ -11,7 +11,8 @@ module News
       validates :password, presence: true
 
       def self.authorize(email:, password:)
-        return false unless user = User.where(email: email).first
+        user = User.where(email: email).first
+        return false unless user
         user.password == password
       end
 

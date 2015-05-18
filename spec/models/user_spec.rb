@@ -3,7 +3,7 @@ require 'spec_helper'
 describe News::Models::User do
   describe 'validations' do
     context 'when email already exists in the database' do
-      let(:user_params) { {email: '007@mi6.co.uk', password: 'vesper'} }
+      let(:user_params) { { email: '007@mi6.co.uk', password: 'vesper' } }
       let!(:user) { User.create(user_params) }
 
       before { expect(user).to be_valid }
