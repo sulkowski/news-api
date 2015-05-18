@@ -11,6 +11,11 @@ module News
       }
 
       helpers Helpers::ResponseHeaders
+      helpers Helpers::Authentication
+
+      error News::Models::User::NotAuthorized do
+        halt 401, json(error: {code: 401, message: 'Not authorized'})
+      end
 
       error ActiveRecord::RecordNotFound do |error|
         halt 404, json(error: {code: 404, message: error.to_s})

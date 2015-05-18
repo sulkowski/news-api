@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe News::Routes::Stories do
   before {
-    @story = Story.create(
+    Story.create(
       id: 1,
       title: 'Lorem ipsum',
       url: 'http://www.lipsum.com/'
@@ -32,11 +32,27 @@ describe News::Routes::Stories do
   end
 
   describe '#POST `/stories`' do
-    context 'when params are valid' do
-      before { post '/stories', title: 'React.js', url: 'https://facebook.github.io/react/' }
 
-      it 'returns 201 status code' do
+    context 'when user is not authorized' do
+      it_should_behave_like 'not authorized user' do
+        before {
+          post '/stories'
+        }
+      end
+    end
+
+    context 'when params are valid' do
+      before {
+        sign_in
+        post '/stories', title: 'React.js', url: 'https://facebook.github.io/react/'
+      }
+
+      it 'returns `201` status code' do
         expect(last_response.status).to eq(201)
+      end
+
+      it 'has `application/json` content-type' do
+        expect(last_response.header['Content-Type']).to include('application/json')
       end
 
       it 'contains `location` header' do
@@ -52,23 +68,61 @@ describe News::Routes::Stories do
       end
     end
 
-    context 'when url is not given' do
-      before { post '/stories', title: 'React.js' }
+    describe 'url validations' do
+      context 'when is not given' do
+        before {
+          sign_in
+          post '/stories', title: 'React.js'
+        }
 
-      it 'returns 422 status code' do
-        expect(last_response.status).to eq(422)
+        it 'returns 422 status code' do
+          expect(last_response.status).to eq(422)
+        end
+
+        it 'has `application/json` content-type' do
+          expect(last_response.header['Content-Type']).to include('application/json')
+        end
+
+        it 'returns error description' do
+          expect(last_response.body).to include_json(
+            error: {
+              code: 422,
+              message: 'Validation failed: Url can\'t be blank',
+              errors: {
+                url: ['can\'t be blank']
+              }
+            }
+          )
+        end
       end
 
-      it 'returns error description' do
-        expect(last_response.body).to include_json(
-          error: {
-            code: 422,
-            message: 'Validation failed: Url can\'t be blank',
-            errors: {
-              url: ['can\'t be blank']
-            }
+      describe 'title validations' do
+        context 'when is not given' do
+          before {
+            sign_in
+            post '/stories', url: 'https://facebook.github.io/react/'
           }
-        )
+
+          it 'returns 422 status code' do
+            expect(last_response.status).to eq(422)
+          end
+
+          it 'has `application/json` content-type' do
+            expect(last_response.header['Content-Type']).to include('application/json')
+          end
+
+          it 'returns error description' do
+            expect(last_response.body).to include_json(
+              error: {
+                code: 422,
+                message: 'Validation failed: Title can\'t be blank',
+                errors: {
+                  title: ['can\'t be blank']
+                }
+              }
+            )
+          end
+        end
       end
     end
   end
@@ -81,7 +135,7 @@ describe News::Routes::Stories do
         expect(last_response).to be_ok
       end
 
-      it 'has `application/json` content type' do
+      it 'has `application/json` content-type' do
         expect(last_response.header['Content-Type']).to include('application/json')
       end
 
@@ -101,7 +155,7 @@ describe News::Routes::Stories do
         expect(last_response.status).to eq(404)
       end
 
-      it 'has `application/json` content type' do
+      it 'has `application/json` content-type' do
         expect(last_response.header['Content-Type']).to eq('application/json')
       end
 

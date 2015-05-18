@@ -14,6 +14,8 @@ module News
         end
 
         post do
+          authenticate!
+
           story = Story.new(title: params['title'], url: params['url'])
           if story.save!
             status 201
