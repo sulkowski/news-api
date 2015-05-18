@@ -21,7 +21,7 @@ require 'multi_json'
 module News
   class App < Sinatra::Application
     configure do
-      database_url = ENV['DATABASE_URL'] || "postgresql://localhost/news_#{environment}"
+      database_url = ENV.fetch('DATABASE_URL')
       ::ActiveRecord::Base.establish_connection(database_url)
       ::ActiveRecord::ConnectionAdapters::ConnectionManagement
     end
