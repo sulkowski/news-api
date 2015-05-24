@@ -2,8 +2,8 @@ module News
   module Helpers
     module Authentication
       def authenticate!
-        response['WWW-Authenticate'] = %(Basic realm="Restricted Area")
         fail User::NotAuthorized unless authorized?
+        response['WWW-Authenticate'] = %(Basic realm="Restricted Area")
       end
 
       def authorized?

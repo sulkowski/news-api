@@ -46,6 +46,8 @@ describe News::Routes::Stories do
         post '/stories', title: 'React.js', url: 'https://facebook.github.io/react/'
       }
 
+      it_should_behave_like 'authorized user'
+
       it 'returns `201` status code' do
         expect(last_response.status).to eq(201)
       end
@@ -148,7 +150,7 @@ describe News::Routes::Stories do
     end
 
     context 'when the story does not exist' do
-      before { get '/stories/15' }
+      before { get '/stories/0' }
 
       it 'returns `not found` response' do
         expect(last_response.status).to eq(404)
@@ -162,7 +164,7 @@ describe News::Routes::Stories do
         expect(last_response.body).to include_json(
           error: {
             code: 404,
-            message: 'Couldn\'t find News::Models::Story with \'id\'=15'
+            message: 'Couldn\'t find News::Models::Story with \'id\'=0'
           }
         )
       end

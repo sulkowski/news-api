@@ -91,7 +91,7 @@ describe News::Routes::Users do
         end
       end
 
-      context 'when there alredy account' do
+      context 'when already exists in the database' do
         let(:user_params) { { email: '007@mi6.co.uk', password: 'versper' } }
 
         before do

@@ -7,6 +7,10 @@ RSpec.shared_examples 'not authorized user' do
     expect(last_response.header['Content-Type']).to include('application/json')
   end
 
+  it 'does not have `WWW-Authenticate` header' do
+    expect(last_response.header).to_not include('WWW-Authenticate')
+  end
+
   it 'contains error message' do
     expect(last_response.body).to include_json(
       error: {
