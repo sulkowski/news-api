@@ -3,9 +3,3 @@ RSpec.shared_examples 'authorized user' do
     expect(last_response.header).to include('WWW-Authenticate')
   end
 end
-
-
-
-
-
-

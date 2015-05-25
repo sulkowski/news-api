@@ -1,13 +1,15 @@
 require 'spec_helper'
 
 describe News::Routes::Stories do
-  before {
+  let(:user) { User.create(email: 'm@mi6.co.uk', password: 'james') }
+  let!(:story) do
     Story.create(
       id: 1,
+      user: user,
       title: 'Lorem ipsum',
       url: 'http://www.lipsum.com/'
     )
-  }
+  end
 
   describe '#GET `/stories`' do
     before { get '/stories' }
@@ -26,7 +28,9 @@ describe News::Routes::Stories do
       expect(first_story).to include_json(
         id: 1,
         title: 'Lorem ipsum',
-        url: 'http://www.lipsum.com/'
+        url: 'http://www.lipsum.com/',
+        likes: 0,
+        dislikes: 0
       )
     end
   end
@@ -34,17 +38,15 @@ describe News::Routes::Stories do
   describe '#POST `/stories`' do
     context 'when user is not authorized' do
       it_should_behave_like 'not authorized user' do
-        before {
-          post '/stories'
-        }
+        before { post '/stories' }
       end
     end
 
     context 'when params are valid' do
-      before {
+      before do
         sign_in
         post '/stories', title: 'React.js', url: 'https://facebook.github.io/react/'
-      }
+      end
 
       it_should_behave_like 'authorized user'
 
@@ -64,17 +66,19 @@ describe News::Routes::Stories do
       it 'returns a new story in response' do
         expect(last_response.body).to include_json(
           title: 'React.js',
-          url: 'https://facebook.github.io/react/'
+          url: 'https://facebook.github.io/react/',
+          likes: 0,
+          dislikes: 0
         )
       end
     end
 
     describe 'url validations' do
       context 'when is not given' do
-        before {
+        before do
           sign_in
           post '/stories', title: 'React.js'
-        }
+        end
 
         it 'returns 422 status code' do
           expect(last_response.status).to eq(422)
@@ -99,10 +103,10 @@ describe News::Routes::Stories do
 
       describe 'title validations' do
         context 'when is not given' do
-          before {
+          before do
             sign_in
             post '/stories', url: 'https://facebook.github.io/react/'
-          }
+          end
 
           it 'returns 422 status code' do
             expect(last_response.status).to eq(422)
@@ -144,7 +148,9 @@ describe News::Routes::Stories do
         expect(last_response.body).to include_json(
           id: 1,
           title: 'Lorem ipsum',
-          url: 'http://www.lipsum.com/'
+          url: 'http://www.lipsum.com/',
+          likes: 0,
+          dislikes: 0
         )
       end
     end
@@ -172,48 +178,163 @@ describe News::Routes::Stories do
   end
 
   describe '#PATCH `/stories/:id`' do
-    xit 'updates a story' do
-      patch '/stories/1', title: 'React.js', url: 'https://facebook.github.io/react/'
+    context 'when didn`t crate the story' do
+      before { sign_in }
+      before { patch '/stories/1' }
 
-      expect(last_response.body).to include_json(
-        id: 1,
-        title: 'React.js',
-        url: 'https://facebook.github.io/react/'
-      )
+      it 'returns `403` status code' do
+        expect(last_response.status).to eq(403)
+      end
+
+      it 'has `application/json` content-type' do
+        expect(last_response.header['Content-Type']).to eq('application/json')
+      end
+
+      it 'contains error message' do
+        expect(last_response.body).to include_json(
+          error: {
+            code: 403,
+            message: 'Not allowed to edit story'
+          }
+        )
+      end
+    end
+
+    context 'when the user created the story' do
+      let(:user) { sign_in }
+
+      describe 'updating `title`' do
+        before { patch '/stories/1', title: 'React.js' }
+
+        it_should_behave_like 'authorized user'
+
+        it 'has `200` status code' do
+          expect(last_response.status).to eq(200)
+        end
+
+        it 'has `application/json` content-type' do
+          expect(last_response.header['Content-Type']).to eq('application/json')
+        end
+
+        it 'updates the attribute' do
+          expect(last_response.body).to include_json(
+            id: 1,
+            title: 'React.js',
+            url: 'http://www.lipsum.com/',
+            likes: 0,
+            dislikes: 0
+          )
+        end
+      end
+
+      describe 'updating `url`' do
+        before { patch '/stories/1', url: 'https://facebook.github.io/react/' }
+
+        it_should_behave_like 'authorized user'
+
+        it 'has `200` status code' do
+          expect(last_response.status).to eq(200)
+        end
+
+        it 'has `application/json` content-type' do
+          expect(last_response.header['Content-Type']).to eq('application/json')
+        end
+
+        it 'updates the attribute' do
+          expect(last_response.body).to include_json(
+            id: 1,
+            title: 'Lorem ipsum',
+            url: 'https://facebook.github.io/react/',
+            likes: 0,
+            dislikes: 0
+          )
+        end
+      end
     end
   end
 
-  describe 'voting' do
-    describe '#PUT `/stories/:id/vote`' do
-      context 'when a user already voted for a story' do
-        xit 'does not change count of votes for a story' do
-          put '/stories:/1/vote', count: 1
-        end
+  describe '#PUT `/stories/:id/vote/up`' do
+    let!(:current_user) { sign_in }
+
+    context 'when a user already voted for a story' do
+      let!(:vote) { Vote.create(user: @current_user, story: story, vote: 'like') }
+
+      before { put '/stories/1/vote/up' }
+
+      it_should_behave_like 'authorized user'
+
+      it 'has `204` status code' do
+        expect(last_response.status).to eq(204)
       end
 
-      context 'when a user has not voted for a story' do
-        xit 'changes count of votes for a stroy' do
-          put '/stories:/1/vote', count: 1
-        end
-      end
-
-      context 'when a user alredy voted against a story' do
-        xit 'does not change count of votes for a story' do
-          put '/stories:/1/vote', count: -1
-        end
-      end
-
-      context 'when a user has not voted against a story' do
-        xit 'changes count of votes for a stroy' do
-          put '/stories:/1/vote', count: -1
-        end
+      it 'does not change count of votes for a story' do
+        expect(story.likes).to eq(1)
       end
     end
 
-    describe '#DELETE `stories/:id/vote`' do
-      xit 'removes vote of a user' do
-        delete 'stories/:id/vote'
+    context 'when a user has not voted for a story' do
+      before { put '/stories/1/vote/up' }
+
+      it_should_behave_like 'authorized user'
+
+      it 'has `204` status code' do
+        expect(last_response.status).to eq(204)
       end
+
+      it 'changes count of votes for a stroy' do
+        expect(story.likes).to eq(1)
+      end
+    end
+  end
+
+  describe '#PUT `/stories/:id/vote/down`' do
+    let!(:current_user) { sign_in }
+
+    context 'when a user already voted against a story' do
+      let!(:vote) { Vote.create(user: @current_user, story: story, vote: 'dislike') }
+
+      before { put '/stories/1/vote/down' }
+
+      it_should_behave_like 'authorized user'
+
+      it 'has `204` status code' do
+        expect(last_response.status).to eq(204)
+      end
+
+      it 'does not change count of votes for a story' do
+        expect(story.dislikes).to eq(1)
+      end
+    end
+
+    context 'when a user has not voted against a story' do
+      before { put '/stories/1/vote/down' }
+
+      it_should_behave_like 'authorized user'
+
+      it 'has `204` status code' do
+        expect(last_response.status).to eq(204)
+      end
+
+      it 'changes count of votes for a stroy' do
+        expect(story.dislikes).to eq(1)
+      end
+    end
+  end
+
+  describe '#DELETE `stories/:id/vote`' do
+    let!(:current_user) { sign_in }
+    let!(:vote) { Vote.create(user: @current_user, story: story, vote: 'like') }
+
+    before { delete 'stories/1/vote' }
+
+    it_should_behave_like 'authorized user'
+
+    it 'has `204` status code' do
+      expect(last_response.status).to eq(204)
+    end
+
+    it 'removes vote of a user' do
+      expect(story.likes).to eq(0)
     end
   end
 end

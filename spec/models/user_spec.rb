@@ -1,9 +1,10 @@
 require 'spec_helper'
 
 describe News::Models::User do
+  let(:user_params) { { email: '007@mi6.co.uk', password: 'vesper' } }
+
   describe 'validations' do
     context 'when email already exists in the database' do
-      let(:user_params) { { email: '007@mi6.co.uk', password: 'vesper' } }
       let!(:user) { User.create(user_params) }
 
       before { expect(user).to be_valid }
@@ -15,31 +16,35 @@ describe News::Models::User do
 
     context 'when `email` is not present' do
       it 'is not valid' do
-        expect(User.new(password: 'secret_password')).to_not be_valid
+        user_params[:email] = nil
+        expect(User.new(user_params)).to_not be_valid
       end
     end
 
     context 'when `password` is not present' do
       it 'is not valid' do
-        expect(User.new(email: 'john@pilot.co')).to_not be_valid
-        expect(User.new(email: 'john@pilot.co', password: nil)).to_not be_valid
-        expect(User.new(email: 'john@pilot.co', password: String.new)).to_not be_valid
+        user_params[:password] = nil
+        expect(User.new(user_params)).to_not be_valid
+
+        user_params[:password] = String.new
+        expect(User.new(user_params)).to_not be_valid
       end
     end
   end
 
   describe '.authorize' do
-    let!(:user) { User.create(email: '007@mi6.co.uk', password: 'vesper') }
+    let!(:user) { User.create(user_params) }
 
     context 'when credentails are valid' do
       it 'returns true' do
-        expect(User.authorize(email: '007@mi6.co.uk', password: 'vesper')).to be_truthy
+        expect(User.authorize(user_params)).to be_truthy
       end
     end
 
     context 'when credentails are not valid' do
       it 'returns false' do
-        expect(User.authorize(email: '007@mi6.co.uk', password: 'le_chiffre')).to be_falsey
+        user_params[:password] = 'le_chiffre'
+        expect(User.authorize(user_params)).to be_falsey
       end
     end
   end
