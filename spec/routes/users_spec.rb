@@ -5,12 +5,10 @@ describe News::Routes::Users do
     context 'when params are valid' do
       before { post '/users', email: '007@mi6.co.uk', password: 'vesper' }
 
+      it_should_behave_like 'json response'
+
       it 'returns valid status code' do
         expect(last_response.status).to eq(201)
-      end
-
-      it 'has `application/json` content-type' do
-        expect(last_response.header['Content-Type']).to include('application/json')
       end
 
       it 'returns user in the response' do
@@ -36,12 +34,10 @@ describe News::Routes::Users do
       context 'when is not given' do
         before { post '/users', email: '007@mi6.co.uk' }
 
+        it_should_behave_like 'json response'
+
         it 'returns `422` status code' do
           expect(last_response.status).to eq(422)
-        end
-
-        it 'has `application/json` content-type' do
-          expect(last_response.header['Content-Type']).to include('application/json')
         end
 
         it 'returns error description' do
@@ -52,12 +48,10 @@ describe News::Routes::Users do
       context 'when is an empty string' do
         before { post '/users', email: '007@mi6.co.uk', password: '' }
 
+        it_should_behave_like 'json response'
+
         it 'returns `422` status code' do
           expect(last_response.status).to eq(422)
-        end
-
-        it 'has `application/json` content-type' do
-          expect(last_response.header['Content-Type']).to include('application/json')
         end
 
         it 'returns error description' do
@@ -70,12 +64,10 @@ describe News::Routes::Users do
       context 'when is not given' do
         before { post '/users', password: 'secret' }
 
+        it_should_behave_like 'json response'
+
         it 'returns `422` status code' do
           expect(last_response.status).to eq(422)
-        end
-
-        it 'has `application/json` content-type' do
-          expect(last_response.header['Content-Type']).to include('application/json')
         end
 
         it 'returns error description' do
@@ -99,12 +91,10 @@ describe News::Routes::Users do
           post '/users', user_params
         end
 
+        it_should_behave_like 'json response'
+
         it 'returns `422` status code' do
           expect(last_response.status).to eq(422)
-        end
-
-        it 'has `application/json` content-type' do
-          expect(last_response.header['Content-Type']).to include('application/json')
         end
 
         it 'returns error description' do

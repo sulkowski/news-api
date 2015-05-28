@@ -49,13 +49,10 @@ describe News::Routes::Stories do
       end
 
       it_should_behave_like 'authorized user'
+      it_should_behave_like 'json response'
 
       it 'returns `201` status code' do
         expect(last_response.status).to eq(201)
-      end
-
-      it 'has `application/json` content-type' do
-        expect(last_response.header['Content-Type']).to include('application/json')
       end
 
       it 'contains `location` header' do
@@ -80,12 +77,10 @@ describe News::Routes::Stories do
           post '/stories', title: 'React.js'
         end
 
+        it_should_behave_like 'json response'
+
         it 'returns 422 status code' do
           expect(last_response.status).to eq(422)
-        end
-
-        it 'has `application/json` content-type' do
-          expect(last_response.header['Content-Type']).to include('application/json')
         end
 
         it 'returns error description' do
@@ -108,12 +103,10 @@ describe News::Routes::Stories do
             post '/stories', url: 'https://facebook.github.io/react/'
           end
 
+          it_should_behave_like 'json response'
+
           it 'returns 422 status code' do
             expect(last_response.status).to eq(422)
-          end
-
-          it 'has `application/json` content-type' do
-            expect(last_response.header['Content-Type']).to include('application/json')
           end
 
           it 'returns error description' do
@@ -136,12 +129,10 @@ describe News::Routes::Stories do
     context 'when the story exists' do
       before { get '/stories/1' }
 
+      it_should_behave_like 'json response'
+
       it 'returns a successful response' do
         expect(last_response).to be_ok
-      end
-
-      it 'has `application/json` content-type' do
-        expect(last_response.header['Content-Type']).to include('application/json')
       end
 
       it 'returns story as a json' do
@@ -158,12 +149,10 @@ describe News::Routes::Stories do
     context 'when the story does not exist' do
       before { get '/stories/0' }
 
+      it_should_behave_like 'json response'
+
       it 'returns `not found` response' do
         expect(last_response.status).to eq(404)
-      end
-
-      it 'has `application/json` content-type' do
-        expect(last_response.header['Content-Type']).to eq('application/json')
       end
 
       it 'contains error message' do
@@ -182,12 +171,10 @@ describe News::Routes::Stories do
       before { sign_in }
       before { patch '/stories/1' }
 
+      it_should_behave_like 'json response'
+
       it 'returns `403` status code' do
         expect(last_response.status).to eq(403)
-      end
-
-      it 'has `application/json` content-type' do
-        expect(last_response.header['Content-Type']).to eq('application/json')
       end
 
       it 'contains error message' do
@@ -207,13 +194,10 @@ describe News::Routes::Stories do
         before { patch '/stories/1', title: 'React.js' }
 
         it_should_behave_like 'authorized user'
+        it_should_behave_like 'json response'
 
         it 'has `200` status code' do
           expect(last_response.status).to eq(200)
-        end
-
-        it 'has `application/json` content-type' do
-          expect(last_response.header['Content-Type']).to eq('application/json')
         end
 
         it 'updates the attribute' do
@@ -231,13 +215,10 @@ describe News::Routes::Stories do
         before { patch '/stories/1', url: 'https://facebook.github.io/react/' }
 
         it_should_behave_like 'authorized user'
+        it_should_behave_like 'json response'
 
         it 'has `200` status code' do
           expect(last_response.status).to eq(200)
-        end
-
-        it 'has `application/json` content-type' do
-          expect(last_response.header['Content-Type']).to eq('application/json')
         end
 
         it 'updates the attribute' do
