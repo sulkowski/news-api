@@ -1,6 +1,11 @@
 module News
   module Routes
     class Stories < Base
+      STORY_SERIALIZATION_PARAMS = {
+        only: [:id, :title, :url],
+        methods: [:likes, :dislikes]
+      }
+
       namespace '/stories' do
         get do
           stories = Story.all
@@ -10,7 +15,7 @@ module News
 
         get '/:id' do
           story = Story.find(params[:id])
-          json story.serializable_hash(only: [:id, :title, :url], methods: [:likes, :dislikes])
+          json story.serializable_hash(STORY_SERIALIZATION_PARAMS)
         end
 
         patch '/:id' do
@@ -22,7 +27,7 @@ module News
           story.url   = params['url']   if params['url']
           story.save!
           status 200
-          json story.serializable_hash(only: [:id, :title, :url], methods: [:likes, :dislikes])
+          json story.serializable_hash(STORY_SERIALIZATION_PARAMS)
         end
 
         post do
@@ -32,7 +37,7 @@ module News
           story.save!
           status 201
           location "/stories/#{story.id}"
-          json story.serializable_hash(only: [:id, :title, :url], methods: [:likes, :dislikes])
+          json story.serializable_hash(STORY_SERIALIZATION_PARAMS)
         end
 
         # Voting
