@@ -4,11 +4,10 @@ module News
       def authenticate!
         fail User::NotAuthorized unless authorized?
         set_authenticaiton_header
-        set_user_email
       end
 
       def current_user
-        News::Models::User.find_by(email: get_user_email)
+        @current_user ||= News::Models::User.find_by(email: user_email)
       end
 
       def authorized?
@@ -16,19 +15,19 @@ module News
           request_auth.basic? &&
           request_auth.credentials &&
           News::Models::User.authorize(
-            email:    request_auth.credentials[0],
-            password: request_auth.credentials[1]
+            email:    user_email,
+            password: user_password
           )
       end
 
       private
 
-      def get_user_email
-        session[:current_user_email]
+      def user_email
+        @user_email ||= request_auth.credentials[0]
       end
 
-      def set_user_email
-        session[:current_user_email] = request_auth.credentials[0]
+      def user_password
+        @user_password ||= request_auth.credentials[1]
       end
 
       def set_authenticaiton_header

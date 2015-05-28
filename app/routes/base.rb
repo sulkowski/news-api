@@ -2,8 +2,6 @@ module News
   module Routes
     class Base < Sinatra::Application
       configure do
-        enable :sessions
-
         set :root, App.root
         set :show_exceptions, :after_handler
       end
