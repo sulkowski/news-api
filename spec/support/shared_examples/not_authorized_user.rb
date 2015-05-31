@@ -15,7 +15,7 @@ RSpec.shared_examples 'not authorized user' do
     expect(last_response.body).to include_json(
       error: {
         code: 401,
-        message: 'Not authorized'
+        message: 'Not authenticated'
       }
     )
   end

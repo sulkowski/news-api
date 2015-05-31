@@ -3,8 +3,6 @@ require 'bcrypt'
 module News
   module Models
     class User < ActiveRecord::Base
-      NotAuthorized = Class.new(StandardError)
-
       include BCrypt
 
       validates :email,    presence: true, uniqueness: true

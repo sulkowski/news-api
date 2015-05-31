@@ -2,7 +2,7 @@ module News
   module Helpers
     module Authentication
       def authenticate!
-        fail User::NotAuthorized unless authorized?
+        fail News::Exceptions::AuthenticationError unless authorized?
         set_authenticaiton_header
       end
 

@@ -95,31 +95,31 @@ describe News::Routes::Stories do
           )
         end
       end
+    end
 
-      describe 'title validations' do
-        context 'when is not given' do
-          before do
-            sign_in
-            post '/stories', url: 'https://facebook.github.io/react/'
-          end
+    describe 'title validations' do
+      context 'when is not given' do
+        before do
+          sign_in
+          post '/stories', url: 'https://facebook.github.io/react/'
+        end
 
-          it_should_behave_like 'json response'
+        it_should_behave_like 'json response'
 
-          it 'returns 422 status code' do
-            expect(last_response.status).to eq(422)
-          end
+        it 'returns 422 status code' do
+          expect(last_response.status).to eq(422)
+        end
 
-          it 'returns error description' do
-            expect(last_response.body).to include_json(
-              error: {
-                code: 422,
-                message: 'Validation failed: Title can\'t be blank',
-                errors: {
-                  title: ['can\'t be blank']
-                }
+        it 'returns error description' do
+          expect(last_response.body).to include_json(
+            error: {
+              code: 422,
+              message: 'Validation failed: Title can\'t be blank',
+              errors: {
+                title: ['can\'t be blank']
               }
-            )
-          end
+            }
+          )
         end
       end
     end
@@ -181,7 +181,7 @@ describe News::Routes::Stories do
         expect(last_response.body).to include_json(
           error: {
             code: 403,
-            message: 'Not allowed to edit story'
+            message: 'Not authorized'
           }
         )
       end
@@ -234,11 +234,37 @@ describe News::Routes::Stories do
     end
   end
 
+  describe '#GET `/stories/:id/url`' do
+    context 'when a stroy does not exist' do
+      before do
+        get '/stories/0/url'
+      end
+
+      it 'returns `not found` response' do
+        expect(last_response.status).to eq(404)
+      end
+    end
+
+    context 'when a story exists' do
+      before do
+        get '/stories/1/url'
+      end
+
+      it 'sets `location` header to the story url' do
+        expect(last_response.location).to eq('http://www.lipsum.com/')
+      end
+
+      it 'sets response status to `303' do
+        expect(last_response.status).to eq(303)
+      end
+    end
+  end
+
   describe '#PUT `/stories/:id/vote/up`' do
     let!(:current_user) { sign_in }
 
     context 'when a user already voted for a story' do
-      let!(:vote) { Vote.create(user: @current_user, story: story, vote: 'like') }
+      let!(:vote) { Vote.create(user: @current_user, story: story, delta: 1) }
 
       before { put '/stories/1/vote/up' }
 
@@ -250,6 +276,26 @@ describe News::Routes::Stories do
 
       it 'does not change count of votes for a story' do
         expect(story.likes).to eq(1)
+      end
+    end
+
+    context 'when user already voted against the story' do
+      let!(:vote) { Vote.create(user: @current_user, story: story, delta: -1) }
+
+      before { put '/stories/1/vote/up' }
+
+      it_should_behave_like 'authorized user'
+
+      it 'has `204` status code' do
+        expect(last_response.status).to eq(204)
+      end
+
+      it 'changes count of likes for the story' do
+        expect(story.likes).to eq(1)
+      end
+
+      it 'changes count of dislikes for the story' do
+        expect(story.dislikes).to eq(0)
       end
     end
 
@@ -272,7 +318,7 @@ describe News::Routes::Stories do
     let!(:current_user) { sign_in }
 
     context 'when a user already voted against a story' do
-      let!(:vote) { Vote.create(user: @current_user, story: story, vote: 'dislike') }
+      let!(:vote) { Vote.create(user: @current_user, story: story, delta: -1) }
 
       before { put '/stories/1/vote/down' }
 
@@ -284,6 +330,26 @@ describe News::Routes::Stories do
 
       it 'does not change count of votes for a story' do
         expect(story.dislikes).to eq(1)
+      end
+    end
+
+    context 'when user already voted for the story' do
+      let!(:vote) { Vote.create(user: @current_user, story: story, delta: 1) }
+
+      before { put '/stories/1/vote/down' }
+
+      it_should_behave_like 'authorized user'
+
+      it 'has `204` status code' do
+        expect(last_response.status).to eq(204)
+      end
+
+      it 'changes count of dislikes for the story' do
+        expect(story.dislikes).to eq(1)
+      end
+
+      it 'changes count of likes for the story' do
+        expect(story.likes).to eq(0)
       end
     end
 
@@ -304,7 +370,7 @@ describe News::Routes::Stories do
 
   describe '#DELETE `stories/:id/vote`' do
     let!(:current_user) { sign_in }
-    let!(:vote) { Vote.create(user: @current_user, story: story, vote: 'like') }
+    let!(:vote) { Vote.create(user: @current_user, story: story, delta: 1) }
 
     before { delete 'stories/1/vote' }
 

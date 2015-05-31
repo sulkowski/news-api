@@ -16,6 +16,8 @@ require 'sinatra/namespace'
 require 'app/models'
 require 'app/routes'
 require 'app/helpers'
+require 'app/exceptions'
+
 require 'multi_json'
 
 module News

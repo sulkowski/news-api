@@ -7,11 +7,11 @@ module News
       validates :user, :title, :url, presence: true
 
       def likes
-        votes.where(vote: 'like').count
+        votes.where(delta: 1).count
       end
 
       def dislikes
-        votes.where(vote: 'dislike').count
+        votes.where(delta: -1).count
       end
     end
   end

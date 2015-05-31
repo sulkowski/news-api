@@ -4,7 +4,7 @@ describe News::Models::Vote do
   describe 'validations' do
     let(:user)  { User.create(email: '007@mi6.co.uk', password: 'vesper')  }
     let(:story) { Story.create(id: 1, user: user, title: 'Lorem ipsum', url: 'http://www.lipsum.com/') }
-    let(:vote_params) { { user: user, story: story, vote: 'like' } }
+    let(:vote_params) { { user: user, story: story, delta: 1 } }
 
     context 'when there already exists vote for given user and story' do
       before { Vote.create(vote_params) }
@@ -33,16 +33,16 @@ describe News::Models::Vote do
     end
 
     describe 'vote attribute' do
-      context 'when `vote` equals `like`' do
+      context 'when `delta` equals `-1`' do
         it 'is valid' do
-          vote_params[:vote] = 'like'
+          vote_params[:delta] = -1
           expect(Vote.new(vote_params)).to be_valid
         end
       end
 
-      context 'when `vote` equals `dislike`' do
+      context 'when `delta` equals `1`' do
         it 'is valid' do
-          vote_params[:vote] = 'dislike'
+          vote_params[:delta] = 1
           expect(Vote.new(vote_params)).to be_valid
         end
       end

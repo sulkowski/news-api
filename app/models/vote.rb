@@ -7,7 +7,7 @@ module News
       validates :story, presence: true, uniqueness: { scope: :user }
       validates :user,  presence: true
 
-      validates :vote, inclusion: { in: %w(like dislike) }
+      validates :delta, inclusion: { in: [1, -1] }
     end
   end
 end
