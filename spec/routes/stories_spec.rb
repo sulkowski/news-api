@@ -1,37 +1,58 @@
 require 'spec_helper'
 
 describe News::Routes::Stories do
-  let(:user_params) {
+  let(:user_params) do
     { email: 'm@mi6.co.uk', password: 'james' }
-  }
-  let(:story_params) {
+  end
+
+  let(:story_params) do
     {
       id: 1,
       user: user,
       title: 'Lorem ipsum',
       url: 'http://www.lipsum.com/'
     }
-  }
+  end
 
   describe '#GET `/stories`' do
     let(:user)   { User.create(user_params) }
     let!(:story) { Story.create(story_params) }
 
-    before { get '/stories' }
+    describe 'json response' do
+      before { get '/stories' }
 
-    it_should_behave_like 'json response'
+      it_should_behave_like 'json response'
 
-    it 'returns correct status code and stories' do
-      first_story = JSON.parse(last_response.body).first
+      it 'returns correct status code and stories' do
+        first_story = JSON.parse(last_response.body).first
 
-      expect(last_response.status).to eq(200)
-      expect(first_story).to include_json(
-        id: 1,
-        title: 'Lorem ipsum',
-        url: 'http://www.lipsum.com/',
-        likes: 0,
-        dislikes: 0
-      )
+        expect(last_response.status).to eq(200)
+        expect(first_story).to include_json(
+          id: 1,
+          title: 'Lorem ipsum',
+          url: 'http://www.lipsum.com/',
+          likes: 0,
+          dislikes: 0
+        )
+      end
+    end
+
+    describe 'xml response' do
+      before { get '/stories', {}, 'HTTP_ACCEPT' => 'application/xml' }
+
+      it_should_behave_like 'xml response'
+
+      it 'returns correct status code and stories' do
+        stories = Hash.from_xml(last_response.body)['objects']
+        first_story = stories[0]
+
+        expect(last_response.status).to eq(200)
+        expect(first_story['id']).to eq(1)
+        expect(first_story['title']).to eq('Lorem ipsum')
+        expect(first_story['url']).to eq('http://www.lipsum.com/')
+        expect(first_story['likes']).to eq(0)
+        expect(first_story['dislikes']).to eq(0)
+      end
     end
   end
 
