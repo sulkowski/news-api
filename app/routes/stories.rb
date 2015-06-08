@@ -23,9 +23,7 @@ module News
           story = Story.find(params['id'])
           fail News::Exceptions::AuthorizationError unless story.user == current_user
 
-          story.title = params['title'] if params['title']
-          story.url   = params['url']   if params['url']
-          story.save!
+          story.update!(params.slice('title', 'url'))
           status 200
           respond_with story.serializable_hash(STORY_SERIALIZATION_PARAMS)
         end
