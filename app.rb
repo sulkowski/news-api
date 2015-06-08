@@ -32,6 +32,9 @@ module News
       ::ActiveRecord::Base.logger = Logger.new(STDOUT)
     end
 
+    use Routes::Legacy::Stories
+    use Routes::Legacy::Users
+
     use Routes::V1::Stories
     use Routes::V1::Users
 
