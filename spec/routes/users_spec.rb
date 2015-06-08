@@ -7,11 +7,8 @@ describe News::Routes::Users do
 
       it_should_behave_like 'json response'
 
-      it 'returns valid status code' do
+      it 'returns correct status code and response' do
         expect(last_response.status).to eq(201)
-      end
-
-      it 'returns user in the response' do
         expect(last_response.body).to include_json(
           email: '007@mi6.co.uk'
         )
@@ -36,11 +33,8 @@ describe News::Routes::Users do
 
         it_should_behave_like 'json response'
 
-        it 'returns `422` status code' do
+        it 'returns correct status code and response' do
           expect(last_response.status).to eq(422)
-        end
-
-        it 'returns error description' do
           expect(last_response.body).to include_json(empty_password_error)
         end
       end
@@ -50,11 +44,8 @@ describe News::Routes::Users do
 
         it_should_behave_like 'json response'
 
-        it 'returns `422` status code' do
+        it 'returns correct status code and response' do
           expect(last_response.status).to eq(422)
-        end
-
-        it 'returns error description' do
           expect(last_response.body).to include_json(empty_password_error)
         end
       end
@@ -66,11 +57,8 @@ describe News::Routes::Users do
 
         it_should_behave_like 'json response'
 
-        it 'returns `422` status code' do
+        it 'returns correct status code and response' do
           expect(last_response.status).to eq(422)
-        end
-
-        it 'returns error description' do
           expect(last_response.body).to include_json(
             error: {
               code: 422,
@@ -93,11 +81,8 @@ describe News::Routes::Users do
 
         it_should_behave_like 'json response'
 
-        it 'returns `422` status code' do
+        it 'returns correct status code and response' do
           expect(last_response.status).to eq(422)
-        end
-
-        it 'returns error description' do
           expect(last_response.body).to include_json(
             error: {
               code: 422,
