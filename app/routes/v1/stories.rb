@@ -7,73 +7,71 @@ module News
           methods: [:likes, :dislikes]
         }
 
-        namespace '/v1' do
-          namespace '/stories' do
-            get do
-              stories = Story.all
-              serialized_stories = stories.map { |story| story.serializable_hash(methods: [:likes, :dislikes]) }
-              respond_with serialized_stories
-            end
+        namespace '/stories' do
+          get do
+            stories = Story.all
+            serialized_stories = stories.map { |story| story.serializable_hash(methods: [:likes, :dislikes]) }
+            respond_with serialized_stories
+          end
 
-            get '/:id' do
-              story = Story.find(params[:id])
-              respond_with story.serializable_hash(STORY_SERIALIZATION_PARAMS)
-            end
+          get '/:id' do
+            story = Story.find(params[:id])
+            respond_with story.serializable_hash(STORY_SERIALIZATION_PARAMS)
+          end
 
-            patch '/:id' do
+          patch '/:id' do
+            authenticate!
+            story = Story.find(params['id'])
+            fail News::Exceptions::AuthorizationError unless story.user == current_user
+
+            story.update!(params.slice('title', 'url'))
+            status 200
+            respond_with story.serializable_hash(STORY_SERIALIZATION_PARAMS)
+          end
+
+          post do
+            authenticate!
+
+            story = Story.new(user: current_user, title: params['title'], url: params['url'])
+            story.save!
+            status 201
+            location "/stories/#{story.id}"
+            respond_with story.serializable_hash(STORY_SERIALIZATION_PARAMS)
+          end
+
+          get '/:id/url' do
+            story = Story.find(params['id'])
+
+            redirect story.url, 303
+          end
+
+          # Voting
+          namespace '/:id/vote' do
+            before do
               authenticate!
-              story = Story.find(params['id'])
-              fail News::Exceptions::AuthorizationError unless story.user == current_user
-
-              story.update!(params.slice('title', 'url'))
-              status 200
-              respond_with story.serializable_hash(STORY_SERIALIZATION_PARAMS)
+              @story = Story.find(params['id'])
             end
 
-            post do
-              authenticate!
+            put '/up' do
+              Vote.find_or_create_by(story: @story, user: current_user) do |vote|
+                vote.delta = 1
+              end
 
-              story = Story.new(user: current_user, title: params['title'], url: params['url'])
-              story.save!
-              status 201
-              location "/stories/#{story.id}"
-              respond_with story.serializable_hash(STORY_SERIALIZATION_PARAMS)
+              status 204
             end
 
-            get '/:id/url' do
-              story = Story.find(params['id'])
+            put '/down' do
+              Vote.find_or_create_by(story: @story, user: current_user) do |vote|
+                vote.delta = -1
+              end
 
-              redirect story.url, 303
+              status 204
             end
 
-            # Voting
-            namespace '/:id/vote' do
-              before do
-                authenticate!
-                @story = Story.find(params['id'])
-              end
+            delete do
+              Vote.delete_all(story: @story, user: current_user)
 
-              put '/up' do
-                Vote.find_or_create_by(story: @story, user: current_user) do |vote|
-                  vote.delta = 1
-                end
-
-                status 204
-              end
-
-              put '/down' do
-                Vote.find_or_create_by(story: @story, user: current_user) do |vote|
-                  vote.delta = -1
-                end
-
-                status 204
-              end
-
-              delete do
-                Vote.delete_all(story: @story, user: current_user)
-
-                status 204
-              end
+              status 204
             end
           end
         end

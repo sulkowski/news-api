@@ -1,19 +1,20 @@
 module News
   module Routes
     class Base < Sinatra::Application
-      configure do
-        set :root, App.root
-        set :show_exceptions, :after_handler
-      end
-
       helpers Helpers::ResponseHeaders
       helpers Helpers::Authentication
+      helpers Helpers::ApiVersioning
+
+      API_TYPES_MAPPING = [
+        { mime_type: 'application/json', versions: [1, 2] },
+        { mime_type: 'application/xml',  versions: [1, 2] }
+      ]
+
+      before do
+        modify_api_accept_headers(mappings: API_TYPES_MAPPING, vendor: 'news-app')
+      end
 
       respond_to :json, :xml
-
-      use Rack::Parser, parsers: {
-        'application/json' => proc { |body| ::MultiJson.decode body }
-      }
 
       error News::Exceptions::AuthenticationError do
         status 401

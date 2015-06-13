@@ -1,10 +1,10 @@
 require 'spec_helper'
 
 describe News::Routes::V2::Stories do
+  let(:accept_header) { { 'HTTP_ACCEPT' => 'application/vnd.news-app.v2+json' } }
   let(:user_params) do
     { email: 'm@mi6.co.uk', password: 'james' }
   end
-
   let(:story_params) do
     {
       id: 1,
@@ -14,12 +14,12 @@ describe News::Routes::V2::Stories do
     }
   end
 
-  describe '#GET `/v2/stories`' do
+  describe '#GET `/stories`' do
     let(:user)   { User.create(user_params) }
     let!(:story) { Story.create(story_params) }
 
     describe 'json response' do
-      before { get '/v2/stories' }
+      before { get '/stories', {}, accept_header }
 
       it_should_behave_like 'json response'
 
@@ -38,7 +38,7 @@ describe News::Routes::V2::Stories do
     end
 
     describe 'xml response' do
-      before { get '/v2/stories', {}, 'HTTP_ACCEPT' => 'application/xml' }
+      before { get '/stories', {}, 'HTTP_ACCEPT' => 'application/vnd.news-app.v2+xml' }
 
       it_should_behave_like 'xml response'
 
@@ -56,16 +56,16 @@ describe News::Routes::V2::Stories do
     end
   end
 
-  describe '#POST `/v2/stories`' do
+  describe '#POST `/stories`' do
     context 'when user is not authorized' do
       it_should_behave_like 'not authorized user' do
-        before { post '/v2/stories' }
+        before { post '/stories', {}, accept_header }
       end
     end
 
     context 'when params are valid' do
       before { sign_in }
-      before { post '/v2/stories', title: 'React.js', url: 'https://facebook.github.io/react/' }
+      before { post '/stories', { title: 'React.js', url: 'https://facebook.github.io/react/' }, accept_header }
 
       it_should_behave_like 'authorized user'
       it_should_behave_like 'json response'
@@ -84,7 +84,7 @@ describe News::Routes::V2::Stories do
 
     context 'when params are not valid' do
       before { sign_in }
-      before { post '/v2/stories' }
+      before { post '/stories', {}, accept_header }
 
       it_should_behave_like 'json response'
 
@@ -104,12 +104,12 @@ describe News::Routes::V2::Stories do
     end
   end
 
-  describe '#GET `/v2/stories/:id`' do
+  describe '#GET `/stories/:id`' do
     context 'when the story exists' do
       let(:user)   { User.create(user_params) }
       let!(:story) { Story.create(story_params) }
 
-      before { get '/v2/stories/1' }
+      before { get '/stories/1', {}, accept_header }
 
       it_should_behave_like 'json response'
 
@@ -128,7 +128,7 @@ describe News::Routes::V2::Stories do
     context 'when the story does not exist' do
       it_should_behave_like 'json response'
 
-      before { get '/v2/stories/1' }
+      before { get '/stories/1', {}, accept_header }
 
       it 'returns correct status code and error message' do
         expect(last_response.status).to eq(404)
@@ -142,13 +142,13 @@ describe News::Routes::V2::Stories do
     end
   end
 
-  describe '#PATCH `/v2/stories/:id`' do
+  describe '#PATCH `/stories/:id`' do
     context 'when didn`t crate the story' do
       let(:user)   { User.create(user_params) }
       let!(:story) { Story.create(story_params) }
 
       before { sign_in }
-      before { patch '/v2/stories/1' }
+      before { patch '/stories/1', {}, accept_header }
 
       it_should_behave_like 'json response'
 
@@ -167,7 +167,7 @@ describe News::Routes::V2::Stories do
       let(:user)   { sign_in }
       let!(:story) { Story.create(story_params) }
 
-      before { patch '/v2/stories/1', title: 'React.js', url: 'https://facebook.github.io/react/' }
+      before { patch '/stories/1', { title: 'React.js', url: 'https://facebook.github.io/react/' }, accept_header }
 
       it_should_behave_like 'authorized user'
       it_should_behave_like 'json response'
@@ -185,9 +185,9 @@ describe News::Routes::V2::Stories do
     end
   end
 
-  describe '#GET `/v2/stories/:id/url`' do
+  describe '#GET `/stories/:id/url`' do
     context 'when a stroy does not exist' do
-      before { get '/v2/stories/1/url' }
+      before { get '/stories/1/url' }
 
       it 'returns 404 status code' do
         expect(last_response.status).to eq(404)
@@ -198,7 +198,7 @@ describe News::Routes::V2::Stories do
       let(:user)   { User.create(user_params) }
       let!(:story) { Story.create(story_params) }
 
-      before { get '/v2/stories/1/url' }
+      before { get '/stories/1/url', {}, accept_header }
 
       it 'returns correct status code and location header' do
         expect(last_response.location).to eq('http://www.lipsum.com/')
@@ -207,11 +207,11 @@ describe News::Routes::V2::Stories do
     end
   end
 
-  describe '#PUT `/v2/stories/:id/vote/up`' do
+  describe '#PUT `/stories/:id/vote/up`' do
     let(:user)   { sign_in }
     let!(:story) { Story.create(story_params) }
 
-    before { put '/v2/stories/1/vote/up' }
+    before { put '/stories/1/vote/up', {}, accept_header }
 
     it_should_behave_like 'authorized user'
 
@@ -242,11 +242,11 @@ describe News::Routes::V2::Stories do
     end
   end
 
-  describe '#PUT `/v2/stories/:id/vote/down`' do
+  describe '#PUT `/stories/:id/vote/down`' do
     let(:user)   { sign_in }
     let!(:story) { Story.create(story_params) }
 
-    before { put '/v2/stories/1/vote/down' }
+    before { put '/stories/1/vote/down', {}, accept_header }
 
     it_should_behave_like 'authorized user'
 
@@ -277,12 +277,12 @@ describe News::Routes::V2::Stories do
     end
   end
 
-  describe '#DELETE `/v2/stories/:id/vote`' do
+  describe '#DELETE `/stories/:id/vote`' do
     let(:user)   { sign_in }
     let!(:story) { Story.create(story_params) }
     let!(:vote)  { Vote.create(user: user, story: story, delta: 1) }
 
-    before { delete '/v2/stories/1/vote' }
+    before { delete '/stories/1/vote', {}, accept_header }
 
     it_should_behave_like 'authorized user'
 

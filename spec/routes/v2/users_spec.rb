@@ -1,9 +1,11 @@
 require 'spec_helper'
 
 describe News::Routes::V2::Users do
-  describe '#POST `/v2/users`' do
+  let(:accept_header) { { 'HTTP_ACCEPT' => 'application/vnd.news-app.v2+json' } }
+
+  describe '#POST `/users`' do
     context 'when params are valid' do
-      before { post '/v2/users', email: '007@mi6.co.uk', password: 'vesper' }
+      before { post '/users', { email: '007@mi6.co.uk', password: 'vesper' }, accept_header }
 
       it_should_behave_like 'json response'
 
@@ -29,7 +31,7 @@ describe News::Routes::V2::Users do
       end
 
       context 'when is not given' do
-        before { post '/v2/users', email: '007@mi6.co.uk' }
+        before { post '/users', { email: '007@mi6.co.uk' }, accept_header }
 
         it_should_behave_like 'json response'
 
@@ -40,7 +42,7 @@ describe News::Routes::V2::Users do
       end
 
       context 'when is an empty string' do
-        before { post '/v2/users', email: '007@mi6.co.uk', password: '' }
+        before { post '/users', { email: '007@mi6.co.uk', password: '' }, accept_header }
 
         it_should_behave_like 'json response'
 
@@ -53,7 +55,7 @@ describe News::Routes::V2::Users do
 
     describe 'email validations' do
       context 'when is not given' do
-        before { post '/v2/users', password: 'secret' }
+        before { post '/users', { password: 'secret' }, accept_header }
 
         it_should_behave_like 'json response'
 
@@ -76,7 +78,7 @@ describe News::Routes::V2::Users do
 
         before do
           User.create(user_params)
-          post 'v2/users', user_params
+          post '/users', user_params, accept_header
         end
 
         it_should_behave_like 'json response'

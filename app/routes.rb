@@ -2,11 +2,6 @@ module News
   module Routes
     autoload :Base, 'app/routes/base'
 
-    module Legacy
-      autoload :Stories, 'app/routes/legacy/stories'
-      autoload :Users,   'app/routes/legacy/users'
-    end
-
     module V1
       autoload :Stories, 'app/routes/v1/stories'
       autoload :Users,   'app/routes/v1/users'

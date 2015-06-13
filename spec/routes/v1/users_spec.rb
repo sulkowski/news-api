@@ -1,9 +1,9 @@
 require 'spec_helper'
 
 describe News::Routes::V1::Users do
-  describe '#POST `/v1/users`' do
+  describe '#POST `/users`' do
     context 'when params are valid' do
-      before { post '/v1/users', email: '007@mi6.co.uk', password: 'vesper' }
+      before { post '/users', email: '007@mi6.co.uk', password: 'vesper' }
 
       it_should_behave_like 'json response'
 
@@ -29,7 +29,7 @@ describe News::Routes::V1::Users do
       end
 
       context 'when is not given' do
-        before { post '/v1/users', email: '007@mi6.co.uk' }
+        before { post '/users', email: '007@mi6.co.uk' }
 
         it_should_behave_like 'json response'
 
@@ -40,7 +40,7 @@ describe News::Routes::V1::Users do
       end
 
       context 'when is an empty string' do
-        before { post '/v1/users', email: '007@mi6.co.uk', password: '' }
+        before { post '/users', email: '007@mi6.co.uk', password: '' }
 
         it_should_behave_like 'json response'
 
@@ -53,7 +53,7 @@ describe News::Routes::V1::Users do
 
     describe 'email validations' do
       context 'when is not given' do
-        before { post '/v1/users', password: 'secret' }
+        before { post '/users', password: 'secret' }
 
         it_should_behave_like 'json response'
 
@@ -76,7 +76,7 @@ describe News::Routes::V1::Users do
 
         before do
           User.create(user_params)
-          post 'v1/users', user_params
+          post '/users', user_params
         end
 
         it_should_behave_like 'json response'
