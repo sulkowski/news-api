@@ -9,8 +9,14 @@ module News
 
         namespace '/stories' do
           get do
-            stories = Story.all
-            serialized_stories = stories.map { |story| story.serializable_hash(methods: [:likes, :dislikes]) }
+            stories = Story.popular(10)
+            serialized_stories = stories.map { |story| story.serializable_hash(STORY_SERIALIZATION_PARAMS) }
+            respond_with serialized_stories
+          end
+
+          get '/recent' do
+            stories = Story.recent(10)
+            serialized_stories = stories.map { |story| story.serializable_hash(STORY_SERIALIZATION_PARAMS) }
             respond_with serialized_stories
           end
 

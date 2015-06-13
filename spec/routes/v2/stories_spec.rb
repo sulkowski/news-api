@@ -17,42 +17,65 @@ describe News::Routes::V2::Stories do
   describe '#GET `/stories`' do
     let(:user)   { User.create(user_params) }
     let!(:story) { Story.create(story_params) }
+    let!(:vote)  { Vote.create(story: story, user: user, delta: 1) }
 
-    describe 'json response' do
-      before { get '/stories', {}, accept_header }
+    describe 'different kinds of responses' do
+      context 'when accept headers requires json' do
+        before { get '/stories', {}, accept_header }
 
-      it_should_behave_like 'json response'
+        it_should_behave_like 'json response'
+      end
 
-      it 'returns correct status code and stories' do
-        first_story = JSON.parse(last_response.body).first
+      context 'when accept headers requires xml' do
+        before { get '/stories', {}, 'HTTP_ACCEPT' => 'application/vnd.news-app.v2+xml' }
 
-        expect(last_response.status).to eq(200)
-        expect(first_story).to include_json(
-          id: 1,
-          title: 'Lorem ipsum',
-          url: 'http://www.lipsum.com/',
-          likes: 0,
-          dislikes: 0
-        )
+        it_should_behave_like 'xml response'
       end
     end
 
-    describe 'xml response' do
-      before { get '/stories', {}, 'HTTP_ACCEPT' => 'application/vnd.news-app.v2+xml' }
+    it 'calls `Story.recent(10)` ' do
+      expect(Story).to receive(:popular).with(10).and_call_original
 
-      it_should_behave_like 'xml response'
+      get '/stories', {}, accept_header
+    end
 
-      it 'returns correct status code and stories' do
-        stories = Hash.from_xml(last_response.body)['objects']
-        first_story = stories[0]
+    it 'returns correct status code and stories' do
+      get '/stories', {}, accept_header
 
-        expect(last_response.status).to eq(200)
-        expect(first_story['id']).to eq(1)
-        expect(first_story['title']).to eq('Lorem ipsum')
-        expect(first_story['url']).to eq('http://www.lipsum.com/')
-        expect(first_story['likes']).to eq(0)
-        expect(first_story['dislikes']).to eq(0)
-      end
+      first_story = JSON.parse(last_response.body).first
+      expect(last_response.status).to eq(200)
+      expect(first_story).to include_json(
+        id: 1,
+        title: 'Lorem ipsum',
+        url: 'http://www.lipsum.com/',
+        likes: 1,
+        dislikes: 0
+      )
+    end
+  end
+
+  describe '#GET `stories/recent`' do
+    let(:user)   { User.create(user_params) }
+    let!(:story) { Story.create(story_params) }
+
+    it 'calls `Story.recent(10)`' do
+      expect(Story).to receive(:recent).with(10).and_call_original
+
+      get '/stories/recent', {}, accept_header
+    end
+
+    it 'returns correct status code and stories' do
+      get '/stories/recent', {}, accept_header
+
+      first_story = JSON.parse(last_response.body).first
+      expect(last_response.status).to eq(200)
+      expect(first_story).to include_json(
+        id: 1,
+        title: 'Lorem ipsum',
+        url: 'http://www.lipsum.com/',
+        likes: 0,
+        dislikes: 0
+      )
     end
   end
 
