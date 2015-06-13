@@ -6,6 +6,9 @@ module News
 
       validates :user, :title, :url, presence: true
 
+      scope :recent,  ->(limit) { order('created_at DESC').limit(limit) }
+      scope :popular, ->(limit) { joins(:votes).group(:id).order('SUM(votes.delta) DESC').limit(limit) }
+
       def likes
         votes.where(delta: 1).count
       end
