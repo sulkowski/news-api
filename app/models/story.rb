@@ -2,7 +2,7 @@ module News
   module Models
     class Story < ActiveRecord::Base
       belongs_to :user
-      has_many :votes
+      has_many :votes, dependent: :destroy
 
       validates :user, :title, :url, presence: true
 

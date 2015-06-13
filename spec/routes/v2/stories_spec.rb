@@ -143,7 +143,7 @@ describe News::Routes::V2::Stories do
   end
 
   describe '#PATCH `/stories/:id`' do
-    context 'when didn`t crate the story' do
+    context 'when the story does not belong to the user' do
       let(:user)   { User.create(user_params) }
       let!(:story) { Story.create(story_params) }
 
@@ -178,6 +178,46 @@ describe News::Routes::V2::Stories do
           id: 1,
           title: 'React.js',
           url: 'https://facebook.github.io/react/',
+          likes: 0,
+          dislikes: 0
+        )
+      end
+    end
+  end
+
+  describe '#DELETE /stories/:id' do
+    context 'when the story does not belong to the user' do
+      let(:user)   { User.create(user_params) }
+      let!(:story) { Story.create(story_params) }
+
+      before { sign_in }
+      before { patch '/stories/1', {}, accept_header }
+
+      it_should_behave_like 'json response'
+
+      it 'returns correct status code and error message' do
+        expect(last_response.status).to eq(403)
+        expect(last_response.body).to include_json(
+          error: {
+            code: 403,
+            message: 'Not authorized'
+          }
+        )
+      end
+    end
+
+    context 'when the story belongs to the user' do
+      let(:user)   { sign_in }
+      let!(:story) { Story.create(story_params) }
+
+      before { delete '/stories/1', {}, accept_header }
+
+      it 'returns correct status code adn updates the attributes' do
+        expect(last_response.status).to eq(200)
+        expect(last_response.body).to include_json(
+          id: 1,
+          title: 'Lorem ipsum',
+          url: 'http://www.lipsum.com/',
           likes: 0,
           dislikes: 0
         )

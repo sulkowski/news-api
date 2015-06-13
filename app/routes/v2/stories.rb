@@ -29,6 +29,16 @@ module News
             respond_with story.serializable_hash(STORY_SERIALIZATION_PARAMS)
           end
 
+          delete '/:id' do
+            authenticate!
+            story = Story.find(params['id'])
+            fail News::Exceptions::AuthorizationError unless story.user == current_user
+
+            story.destroy!
+            status 200
+            respond_with story.serializable_hash(STORY_SERIALIZATION_PARAMS)
+          end
+
           post do
             authenticate!
 
